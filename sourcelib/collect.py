@@ -21,9 +21,9 @@ class FileCollector:
     @classmethod
     def get_files_from_path(cls, file_type, mode: str, path: str, **kwargs):
         class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return get_files_from_path(
+        return sorted(get_files_from_path(
             class_type=class_type, mode=mode, path=path, **kwargs
-        )
+        ), key=lambda k: k.path)
 
     @classmethod
     def get_files_from_folder(
@@ -37,7 +37,7 @@ class FileCollector:
         **kwargs,
     ):
         class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return get_files_from_folder(
+        return sorted(get_files_from_folder(
             class_type=class_type,
             folder=folder,
             mode=mode,
@@ -45,7 +45,7 @@ class FileCollector:
             excludes=excludes,
             recursive=recursive,
             **kwargs,
-        )
+        ), key=lambda k: k.path)
 
     @classmethod
     def get_files_from_yaml(
@@ -58,7 +58,7 @@ class FileCollector:
         **kwargs,
     ):
         class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return get_files_from_yaml(
+        return sorted(get_files_from_yaml(
             class_type=class_type,
             file_indentifier=file_type,
             yaml_source=yaml_source,
@@ -66,7 +66,7 @@ class FileCollector:
             filters=filters,
             excludes=excludes,
             **kwargs,
-        )
+        ), key=lambda k: k.path)
 
 
 def get_files_from_paths(
