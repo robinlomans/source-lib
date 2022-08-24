@@ -1,0 +1,3 @@
+default:
+  - doc:
+      path: /home/mart/code/source-lib/tests/testfiles/test.md
