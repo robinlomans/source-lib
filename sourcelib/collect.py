@@ -80,7 +80,7 @@ def get_files_from_paths(
     files = []
     paths = set(paths)
     for path in paths:
-        path = str(path)
+        path = str(Path(path).expanduser())
         if any([exclude in path for exclude in excludes]):
             continue
         if filters and not any([filter in path for filter in filters]):
