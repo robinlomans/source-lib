@@ -47,7 +47,7 @@ def test_collect_from_yaml():
     yaml_path = Path(__file__).parent / "testfiles" / "data.yml"
     documents = DocumentCollector.get_files_from_yaml("doc", yaml_source=yaml_path)
     assert len(documents) == 1
-    assert str(documents[0].path) == "/home/mart/code/source-lib/tests/testfiles/test.md"
+    assert str(documents[0].path) == Path(__file__).parent / 'testfiles' / "test.md"
 
 
 def test_collect_from_yaml_source():
@@ -56,7 +56,7 @@ def test_collect_from_yaml_source():
         yaml_source = yaml.load(file, Loader=yaml.FullLoader)
     documents = DocumentCollector.get_files_from_yaml("doc", yaml_source=yaml_source)
     assert len(documents) == 1
-    assert str(documents[0].path) == "/home/mart/code/source-lib/tests/testfiles/test.md"
+    assert str(documents[0].path) == Path(__file__).parent / 'testfiles' / "test.md"
 
 
 def test_collect_from_yaml_source_error_mode():
