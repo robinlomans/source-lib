@@ -37,7 +37,7 @@ class TptFileReader(FileReader):
     """reads txt files in folder with same name of a .tpt file and concatenates content"""
 
     def __call__(self, path: Path):
-        paths = list(path.with_suffix("").glob("*.txt"))
+        paths = sorted(list(path.with_suffix("").glob("*.txt")))
         content = str()
         for p in paths:
             with open(p, "r") as file:
