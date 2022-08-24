@@ -121,6 +121,7 @@ def get_files_from_folder(
 
 # YAML_SOURCE_SCHEMA = {"mode": {'file_key': {'path': 'path_to_file', '**kwargs': '**kwargs'}}}
 
+
 def get_files_from_yaml(
     class_type: type,
     file_indentifier: str,
@@ -152,11 +153,16 @@ def get_files_from_yaml(
 
     return get_files_from_paths(class_type, mode, paths, filters, excludes, **kwargs)
 
-def copy_from_yml(data_config, copy_path, file_collector: FileCollector, modes=(), file_types=()):
+
+def copy_from_yml(
+    data_config, copy_path, file_collector: FileCollector, modes=(), file_types=()
+):
     data = []
     for mode in modes:
         for file_type in file_types:
             clss_type = file_collector.FILE_CLASS.get_registrant(file_type)
-            data.extend(get_files_from_yaml(clss_type, file_type,data_config, mode=mode))
+            data.extend(
+                get_files_from_yaml(clss_type, file_type, data_config, mode=mode)
+            )
     for d in data:
         d.copy(copy_path)

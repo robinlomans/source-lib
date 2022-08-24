@@ -14,8 +14,7 @@ def stem_file_associater(file: File):
 
 class Associator:
     def __init__(self):
-        """_summary_
-        """
+        """_summary_"""
 
     @abstractmethod
     def __call__(self, file: File):
@@ -69,9 +68,9 @@ class Associations(UserDict):
 
     def _associate(self, file: Path, associater: Callable, exact_match):
         file_association_key = associater(file)
-        
+
         for file_key in self:
-            
+
             if exact_match:
                 if file_key == file_association_key:
                     return file_key
@@ -98,7 +97,7 @@ def associate_files(
         associations = Associations()
 
     for file1 in files1:
-        
+
         file_key = associator(file1)
         associations.add_file_key(file_key=file_key)
         associations.add_file(

@@ -4,8 +4,6 @@ from pathlib import Path
 from shutil import copy2, copytree
 
 
-
-
 @dataclass(frozen=True)
 class NonExistingSourceFileError(Exception):
     source_path: Path
@@ -40,6 +38,3 @@ def _initialize_destination_path(source: Path, destination_folder: Path) -> Path
 def _transfer(source: Path, destination_path: Path) -> None:
     transfer_function = copytree if os.path.isdir(source) else copy2
     transfer_function(str(source), str(destination_path))
-
-
-
