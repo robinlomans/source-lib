@@ -75,8 +75,8 @@ class FileCollector:
         file_type,
         yaml_source: Union[str, dict],
         mode: str = "default",
-        filters=[],
-        excludes=[],
+        filters=(),
+        excludes=(),
         **kwargs,
     ):
         class_type = cls.FILE_CLASS.get_registrant(file_type)
@@ -103,9 +103,9 @@ def get_files_from_paths(
     paths = set(paths)
     for path in paths:
         path = str(Path(path).expanduser())
-        if any([exclude in path for exclude in excludes]):
+        if any((exclude in path for exclude in excludes)):
             continue
-        if filters and not any([filter in path for filter in filters]):
+        if filters and not any((filter in path for filter in filters)):
             continue
         files.append(cls(mode=mode, path=path, **kwargs))
     return files
@@ -136,7 +136,7 @@ def get_files_from_folder(
         )
         all_sources.extend(sources)
 
-    if all_sources == []:
+    if len(all_sources) == 0:
         raise NoSourceFilesInFolderError(class_type, filters, excludes, folder)
     return all_sources
 
@@ -149,8 +149,8 @@ def get_files_from_yaml(
     file_indentifier: str,
     yaml_source: Union[str, dict],
     mode: str = "default",
-    filters=[],
-    excludes=[],
+    filters=(),
+    excludes=(),
     **kwargs,
 ):
 
@@ -158,9 +158,9 @@ def get_files_from_yaml(
 
     if isinstance(yaml_source, dict):
         data = yaml_source
-    elif isinstance(yaml_source, str) or isinstance(yaml_source, Path):
-        with open(yaml_source) as file:
-            data = yaml.load(file, Loader=yaml.FullLoader)
+    elif isinstance(yaml_source, (str, Path)):
+        with open(yaml_source, encoding="utf-8") as file:
+            data = yaml.safe_load(file)
 
     paths = []
     if mode not in data:

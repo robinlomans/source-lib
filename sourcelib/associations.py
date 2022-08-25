@@ -3,7 +3,7 @@ import warnings
 from abc import abstractmethod
 from collections import UserDict
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from sourcelib.file import File
 
@@ -36,6 +36,7 @@ class AnyOneAssociater(Associator):
 class StemSplitterAssociater(Associator):
     def __init__(self, split_symbols: tuple):
         self._split_symbols = split_symbols
+        super().__init__()
 
     def __call__(self, file: File):
         association_name = file.path.stem
@@ -47,7 +48,7 @@ class StemSplitterAssociater(Associator):
 class AssociatedFiles(UserDict):
     def __init__(self, file_key):
         self._file_key = file_key
-        super().__init__(dict())
+        super().__init__({})
 
     def add_file(self, file):
         self.setdefault(type(file), []).append(file)
@@ -55,7 +56,7 @@ class AssociatedFiles(UserDict):
 
 class Associations(UserDict):
     def __init__(self):
-        super().__init__(dict())
+        super().__init__({})
 
     def add_file_key(self, file_key: str):
         self.setdefault(file_key, AssociatedFiles(file_key))
@@ -66,11 +67,10 @@ class Associations(UserDict):
             return
         self[file_key].add_file(file)
 
-    def _associate(self, file: Path, associater: Callable, exact_match):
+    def _associate(self, file: Path, associater: Callable, exact_match: bool) -> str:
         file_association_key = associater(file)
 
         for file_key in self:
-
             if exact_match:
                 if file_key == file_association_key:
                     return file_key
@@ -88,7 +88,7 @@ class Associations(UserDict):
 def associate_files(
     files1: List,
     files2: List,
-    associations: Associations = None,
+    associations: Optional[Associations] = None,
     associator: Callable = stem_file_associater,
     exact_match=False,
 ) -> Associations:

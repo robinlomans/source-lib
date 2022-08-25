@@ -21,7 +21,7 @@ def test_collect_by_folder():
     assert len(documents) == 2
 
 def test_collect_by_folder_no_files():
-    with raises(NoSourceFilesInFolderError) as errors:
+    with raises(NoSourceFilesInFolderError):
         folder = Path(__file__).parent
         _ = DocumentCollector.get_files_from_folder("doc", folder, "default")
 
@@ -52,14 +52,14 @@ def test_collect_from_yaml():
 
 def test_collect_from_yaml_source():
     yaml_path = Path(__file__).parent / "testfiles" / "data.yml"
-    with open(yaml_path) as file:
-        yaml_source = yaml.load(file, Loader=yaml.FullLoader)
+    with open(yaml_path, encoding="utf-8") as file:
+        yaml_source = yaml.safe_load(file)
     documents = DocumentCollector.get_files_from_yaml("doc", yaml_source=yaml_source)
     assert len(documents) == 1
     assert str(documents[0].path) == str(Path(__file__).parent / 'testfiles' / "test.md")
 
 
 def test_collect_from_yaml_source_error_mode():
-    with raises(NonExistentModeInYamlSource) as errors:
+    with raises(NonExistentModeInYamlSource):
         yaml_path = Path(__file__).parent / "testfiles" / "data.yml"
         _ = DocumentCollector.get_files_from_yaml("doc", yaml_source=yaml_path, mode='nomode')

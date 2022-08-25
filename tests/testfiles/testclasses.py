@@ -29,7 +29,7 @@ class FileReader:
 
 class StandardFileReader(FileReader):
     def __call__(self, path):
-        with open(path, "r") as file:
+        with open(path, encoding="utf-8") as file:
             return file.read()
 
 
@@ -40,7 +40,7 @@ class TptFileReader(FileReader):
         paths = sorted(list(path.with_suffix("").glob("*.txt")))
         content = str()
         for p in paths:
-            with open(p, "r") as file:
+            with open(p, encoding="utf-8") as file:
                 content += file.read()
         return content
 

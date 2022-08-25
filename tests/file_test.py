@@ -50,7 +50,7 @@ def test_copy_file_with_coupled_folder(tmp_path):
 
 
 def test_copy_error(tmp_path):
-    with raises(NonExistingSourceFileError) as errors:
+    with raises(NonExistingSourceFileError):
         path = Path(__file__).parent / 'testfiles' / 'notexisting.txt'
         document_file = File.get_registrant('doc')
         txt_file: DocumentFile = document_file(path=path, file_reader=TptFileReader())
