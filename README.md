@@ -1,4 +1,4 @@
-# source-lib
+# sourcelib
 
 [![PyPI version](https://badge.fury.io/py/sourcelib.svg)](https://badge.fury.io/py/sourcelib)
 [![tests](https://github.com/martvanrijthoven/source-lib/actions/workflows/tests.yml/badge.svg)](https://github.com/martvanrijthoven/source-lib/actions/workflows/tests.yml)
