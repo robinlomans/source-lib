@@ -67,7 +67,7 @@ class Associations(UserDict):
             return
         self[file_key].add_file(file)
 
-    def _associate(self, file: Path, associater: Callable, exact_match: bool) -> str:
+    def _associate(self, file: Path, associater: Callable, exact_match: bool) -> Optional[str]:
         file_association_key = associater(file)
 
         for file_key in self:
