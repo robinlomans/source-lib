@@ -8,11 +8,33 @@ from sourcelib.mode import Mode
 
 
 class NoSourceFilesInFolderError(Exception):
-    ...
+    """_summary_
+
+    Args:
+        Exception (_type_): _description_
+
+    Raises:
+        NoSourceFilesInFolderError: _description_
+        NonExistentModeInYamlSource: _description_
+
+    Returns:
+        _type_: _description_
+    """
 
 
 class NonExistentModeInYamlSource(Exception):
-    ...
+    """_summary_
+
+    Args:
+        Exception (_type_): _description_
+
+    Raises:
+        NoSourceFilesInFolderError: _description_
+        NonExistentModeInYamlSource: _description_
+
+    Returns:
+        _type_: _description_
+    """
 
 
 class FileCollector:
