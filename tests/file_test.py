@@ -1,11 +1,12 @@
-from sourcelib.extension import Extension, create_extensions_mapping
 from pathlib import Path
 
 from pytest import raises
 from sourcelib.collect import copy_from_yml
 from sourcelib.copy import NonExistingSourceFileError
-from tests.testfiles.testclasses import DocumentFile
+from sourcelib.extension import Extension, create_extensions_mapping
 from sourcelib.file import FileMode
+
+from tests.testfiles.testclasses import DocumentFile
 
 
 def test_open_file():

@@ -1,6 +1,7 @@
+from enum import Enum, auto
+
 from sourcelib.extension import Extension, create_extensions_mapping
 from sourcelib.file import File
-from enum import Enum, auto
 
 
 class DocumentFileMode(Enum):

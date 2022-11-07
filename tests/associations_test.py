@@ -1,15 +1,12 @@
 from pathlib import Path
 
-from pytest import warns, raises
-from sourcelib.associations import (
-    AnyOneAssociater,
-    StemSplitterAssociater,
-    associate_files,
-    stem_file_associater,
-)
+from pytest import raises, warns
+from sourcelib.associations import (AnyOneAssociater, StemSplitterAssociater,
+                                    associate_files, stem_file_associater)
 from sourcelib.collect import get_files_from_folder
 from sourcelib.file import ModeMisMatchError
-from .testfiles.testclasses import DocumentFileMode, DocumentFile
+
+from .testfiles.testclasses import DocumentFile, DocumentFileMode
 
 
 def test_stem_file_associater():
@@ -110,10 +107,16 @@ def test_mode_mismatch_error():
     with raises(ModeMisMatchError):
         folder = Path(__file__).parent / "testfiles" / "testparts"
         txt_files = get_files_from_folder(
-            file_cls=DocumentFile, folder=folder, filters="txt", mode=DocumentFileMode.default
+            file_cls=DocumentFile,
+            folder=folder,
+            filters="txt",
+            mode=DocumentFileMode.default,
         )
         md_files = get_files_from_folder(
-            file_cls=DocumentFile, folder=folder, filters="md", mode=DocumentFileMode.error
+            file_cls=DocumentFile,
+            folder=folder,
+            filters="md",
+            mode=DocumentFileMode.error,
         )
 
         associate_files(

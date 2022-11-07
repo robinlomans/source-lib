@@ -1,8 +1,9 @@
+from copy import deepcopy
 from enum import Enum
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
+
 import yaml
-from copy import deepcopy
 
 from sourcelib.file import File, FileMode
 
@@ -13,8 +14,6 @@ class NoSourceFilesInFolderError(Exception):
 
 class NonExistentModeInYamlSource(Exception):
     ...
-
-
 
 
 def get_files_from_paths(
@@ -85,8 +84,8 @@ def get_files_from_yaml(
     if isinstance(yaml_source, dict):
         data = deepcopy(yaml_source)
     elif isinstance(yaml_source, (str, Path)):
-        with open(yaml_source, encoding="utf-8") as File:
-            data = yaml.safe_load(File)
+        with open(yaml_source, encoding="utf-8") as file:
+            data = yaml.safe_load(file)
 
     paths = []
     if mode.name not in data:

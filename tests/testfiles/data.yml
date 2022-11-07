@@ -1,4 +1,4 @@
 default:
   - doc:
-      path: /home/mart/code/source-lib/tests/testfiles/test.md
-      # path: /home/runner/work/source-lib/source-lib/tests/testfiles/test.md
+      # path: /home/mart/code/source-lib/tests/testfiles/test.md
+      path: /home/runner/work/source-lib/source-lib/tests/testfiles/test.md
