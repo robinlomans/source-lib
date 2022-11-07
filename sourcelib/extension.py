@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from typing import List
 
-import numpy as np
-
-
 
 @dataclass(frozen=True)
 class Extension:
@@ -16,6 +13,6 @@ def create_extensions_mapping(extensions: List[Extension]):
     for extension in extensions:
         for suffix in extension.suffixes:
             if suffix in extensions_mapping:
-                raise ValueError('duplicate extension error')
+                raise ValueError("duplicate extension error")
             extensions_mapping[suffix] = extension
     return extensions_mapping
