@@ -1,49 +1,57 @@
-from abc import abstractmethod
 from copy import copy
+from enum import Enum, auto
 from pathlib import Path
-from typing import Any, Union
-
-from creationism.registration.factory import RegistrantFactory
 
 from sourcelib.copy import copy as copy_source
 from sourcelib.extension import Extension
-from sourcelib.mode import DefaultMode, Mode
 
 
-class File(RegistrantFactory):
+class ModeMisMatchError(Exception):
+    ...
 
-    REPLACE = False
-    RECURSIVE = True
 
-    EXTENSIONS = Extension
-    MODES = Mode
+class FileMode(Enum):
+    default = auto()
+
+
+class File:
+
+    EXTENSIONS: dict = {}
+    IDENTIFIER: str = "file"
 
     def __init__(
         self,
-        path: Union[str, Path],
-        mode: Union[str, Mode] = DefaultMode,
+        path: Path,
+        mode: Enum = FileMode.default,
     ):
-        self.mode = self.__class__.MODES.create(mode)
-        self.path = Path(path)
-        self.extension: Extension = self.__class__.EXTENSIONS.create(self.path.suffix)
-        self.original_path = copy(path)
+        self._mode = mode
+        self._path = Path(path)
+        self._original_path = copy(self._path)
+        self._extension = self._get_extension(self._path)
 
-    @abstractmethod
-    def open(self) -> Any:
-        """method to open file
+    @property
+    def mode(self) -> Enum:
+        return self._mode
 
-        Returns:
-            Any: content of opened file
-        """
+    @property
+    def path(self) -> Path:
+        return self._path
+
+    @property
+    def original_path(self) -> Path:
+        return self._path
 
     @property
     def exists(self) -> bool:
         return self.path.exists()
 
+    def _get_extension(self, path: Path) -> Extension:
+        return self.EXTENSIONS[path.suffix]
+
     def copy(self, destination_folder: Path) -> None:
-        if self.extension.FOLDER_COUPLED:
-            copy_source(self.path.with_suffix(""), destination_folder)
-        self.path = copy_source(self.path, destination_folder)
+        if self._extension.folder_coupled:
+            copy_source(self._path.with_suffix(""), destination_folder)
+        self._path = copy_source(self._path, destination_folder)
 
     def __str__(self) -> str:
-        return f"Mode: {str(self.mode.name)} | Path:  {str(self.path)}"
+        return f"Mode: {str(self._mode)} | Path:  {str(self._path)}"

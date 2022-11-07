@@ -1,99 +1,25 @@
+from enum import Enum
 from pathlib import Path
-from typing import List, Union
-
+from typing import List, Union, Tuple
 import yaml
+from copy import deepcopy
 
-from sourcelib.file import File
-from sourcelib.mode import Mode
+from sourcelib.file import File, FileMode
 
 
 class NoSourceFilesInFolderError(Exception):
-    """_summary_
-
-    Args:
-        Exception (_type_): _description_
-
-    Raises:
-        NoSourceFilesInFolderError: _description_
-        NonExistentModeInYamlSource: _description_
-
-    Returns:
-        _type_: _description_
-    """
+    ...
 
 
 class NonExistentModeInYamlSource(Exception):
-    """_summary_
-
-    Args:
-        Exception (_type_): _description_
-
-    Raises:
-        NoSourceFilesInFolderError: _description_
-        NonExistentModeInYamlSource: _description_
-
-    Returns:
-        _type_: _description_
-    """
+    ...
 
 
-class FileCollector:
-    FILE_CLASS = File
-
-    @classmethod
-    def get_files_from_path(cls, file_type, mode: str, path: str, **kwargs):
-        class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return sorted(get_files_from_path(
-            class_type=class_type, mode=mode, path=path, **kwargs
-        ), key=lambda k: k.path)
-
-    @classmethod
-    def get_files_from_folder(
-        cls,
-        file_type,
-        folder: Union[str, Path],
-        mode: str = "default",
-        filters: List[str] = (),
-        excludes: List[str] = (),
-        recursive=False,
-        **kwargs,
-    ):
-        class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return sorted(get_files_from_folder(
-            class_type=class_type,
-            folder=folder,
-            mode=mode,
-            filters=filters,
-            excludes=excludes,
-            recursive=recursive,
-            **kwargs,
-        ), key=lambda k: k.path)
-
-    @classmethod
-    def get_files_from_yaml(
-        cls,
-        file_type,
-        yaml_source: Union[str, dict],
-        mode: str = "default",
-        filters=(),
-        excludes=(),
-        **kwargs,
-    ):
-        class_type = cls.FILE_CLASS.get_registrant(file_type)
-        return sorted(get_files_from_yaml(
-            class_type=class_type,
-            file_indentifier=file_type,
-            yaml_source=yaml_source,
-            mode=mode,
-            filters=filters,
-            excludes=excludes,
-            **kwargs,
-        ), key=lambda k: k.path)
 
 
 def get_files_from_paths(
-    cls: Union[str, type],
-    mode: Union[str, Mode],
+    file_cls: Union[str, type],
+    mode: Enum,
     paths: List[str],
     filters: List[str],
     excludes: List[str],
@@ -107,18 +33,20 @@ def get_files_from_paths(
             continue
         if filters and not any((filter in path for filter in filters)):
             continue
-        files.append(cls(mode=mode, path=path, **kwargs))
-    return files
+        files.append(file_cls(mode=mode, path=path, **kwargs))
+    return sorted(files, key=lambda k: k.path)
 
 
-def get_files_from_path(class_type: type, mode: str, path: str, **kwargs):
-    return get_files_from_paths(class_type, mode, [path], [], [], **kwargs)
+def get_files_from_path(
+    file_cls: type, path: str, mode: Enum = FileMode.default, **kwargs
+):
+    return get_files_from_paths(file_cls, mode, [path], [], [], **kwargs)
 
 
 def get_files_from_folder(
-    class_type: type,
+    file_cls: File,
     folder: Union[str, Path],
-    mode: str = "default",
+    mode: Enum = FileMode.default,
     filters: List[str] = (),
     excludes: List[str] = (),
     recursive=False,
@@ -127,64 +55,70 @@ def get_files_from_folder(
 
     all_sources = []
     folder = Path(folder)
-    for extension in class_type.EXTENSIONS.names():
+    for extension in file_cls.EXTENSIONS:
         paths = (
             folder.rglob("*" + extension) if recursive else folder.glob("*" + extension)
         )
         sources = get_files_from_paths(
-            class_type, mode, paths, filters, excludes, **kwargs
+            file_cls, mode, paths, filters, excludes, **kwargs
         )
         all_sources.extend(sources)
 
     if len(all_sources) == 0:
-        raise NoSourceFilesInFolderError(class_type, filters, excludes, folder)
+        raise NoSourceFilesInFolderError(file_cls, filters, excludes, folder)
     return all_sources
 
 
-# YAML_SOURCE_SCHEMA = {"mode": {'file_key': {'path': 'path_to_file', '**kwargs': '**kwargs'}}}
+# YAML_SOURCE_SCHEMA = {"mode": {'File_key': {'path': 'path_to_File', '**kwargs': '**kwargs'}}}
 
 
 def get_files_from_yaml(
-    class_type: type,
-    file_indentifier: str,
     yaml_source: Union[str, dict],
-    mode: str = "default",
+    file_cls: File,
+    mode: Enum = FileMode.default,
     filters=(),
     excludes=(),
     **kwargs,
 ):
 
     data = {}
-
     if isinstance(yaml_source, dict):
-        data = yaml_source
+        data = deepcopy(yaml_source)
     elif isinstance(yaml_source, (str, Path)):
-        with open(yaml_source, encoding="utf-8") as file:
-            data = yaml.safe_load(file)
+        with open(yaml_source, encoding="utf-8") as File:
+            data = yaml.safe_load(File)
 
     paths = []
-    if mode not in data:
+    if mode.name not in data:
         raise NonExistentModeInYamlSource(
             f"mode '{mode}' not in data {data.keys()} in: {yaml_source}"
         )
 
-    for item in data[mode]:
-        if file_indentifier in item:
-            paths.append(item[file_indentifier].pop("path"))
-            kwargs.update(item[file_indentifier])
+    file_identifier = file_cls.IDENTIFIER
+    for item in data[mode.name]:
+        if file_identifier in item:
+            paths.append(item[file_identifier].pop("path"))
+            kwargs.update(item[file_identifier])
 
-    return get_files_from_paths(class_type, mode, paths, filters, excludes, **kwargs)
+    return get_files_from_paths(file_cls, mode, paths, filters, excludes, **kwargs)
 
 
 def copy_from_yml(
-    data_config, copy_path, file_collector: FileCollector, modes=(), file_types=()
+    yaml_source: Union[Path, dict],
+    file_cls: File,
+    copy_path: Path,
+    modes: Tuple[Enum] = (FileMode.default,),
+    **kwargs,
 ):
     data = []
     for mode in modes:
-        for file_type in file_types:
-            clss_type = file_collector.FILE_CLASS.get_registrant(file_type)
-            data.extend(
-                get_files_from_yaml(clss_type, file_type, data_config, mode=mode)
+        data.extend(
+            get_files_from_yaml(
+                yaml_source=yaml_source,
+                file_cls=file_cls,
+                mode=mode,
+                **kwargs,
             )
+        )
     for d in data:
         d.copy(copy_path)
