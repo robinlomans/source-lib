@@ -67,7 +67,7 @@ class Associations(UserDict):
                     return file_key
             elif file_key in file_association_key:
                 return file_key
-        return
+        return None
 
 def associate_files(
     files1: List[File],
