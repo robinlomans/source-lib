@@ -6,13 +6,13 @@
 [![codeinspector](https://api.codiga.io/project/34464/score/svg)](https://app.codiga.io/public/project/34464/source-lib/dashboard)
 
 
-Source lib offers the possibility to collect files from different types and associate them. 
-For example imagenet images and annotations.
+# Main Features
+
+ - Associate different files 
+ - Collect associated files via files, folders, and/or YAML.
+ - Copy associated files 
 
 
+# Example Notebook
 
-```python
-data_files = get_files_from_folder(file_cls=SuperHeroDataFile, folder='./', mode=SuperHeroMode.default)
-image_files = get_files_from_folder(file_cls=SuperHeroImageFile, folder='./', mode=SuperHeroMode.default)
-associations = associate_files(image_files, data_files)
-```
+https://github.com/martvanrijthoven/source-lib/blob/main/docs/source/notebooks/Example.ipynb
