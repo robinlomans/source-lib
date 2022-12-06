@@ -12,16 +12,17 @@
 #
 import os
 import sys
+from sourcelib._version import __version__
 sys.path.insert(0, os.path.abspath('../../'))  # Source code dir relative to this file
 
 # -- Project information -----------------------------------------------------
 
 project = 'sourcelib'
-copyright = '2022, Mart van Rijthoven'
+copyright = '2022, Mart van Rijthoven' # noqa
 author = 'Mart van Rijthoven'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
