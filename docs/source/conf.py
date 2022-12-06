@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../'))  # Source code dir relative to thi
 # -- Project information -----------------------------------------------------
 
 project = 'sourcelib'
-copyright = '2022, Mart van Rijthoven' # noqa
+copyright = '2022, Mart van Rijthoven' # noqa W0622 
 author = 'Mart van Rijthoven'
 
 # The full version, including alpha/beta/rc tags
