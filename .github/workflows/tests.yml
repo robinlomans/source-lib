@@ -32,25 +32,19 @@ jobs:
           cd tests
           pytest -s . --cov --cov-report term-missing
 
-      - name: Upload coverage
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_PARALLEL: true
-        shell: bash
-        run: |
-          pip install coveralls
-          cd tests
-          coveralls --service=github
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: run-${{ matrix.python }}
+          parallel: true
 
-  coveralls:
-    name: Indicate completion to coveralls.io
+  finish:
     needs: tests
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
-      - name: Finished
-        run: |
-          pip3 install --upgrade coveralls
-          coveralls --finish || echo "!! intermittent coveralls failure"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
