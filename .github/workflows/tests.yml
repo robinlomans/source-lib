@@ -40,7 +40,7 @@ jobs:
         run: |
           pip install coveralls
           cd tests
-          coveralls --service=github || echo "!! intermittent coveralls failure"
+          coveralls --service=github
 
   coveralls:
     name: Indicate completion to coveralls.io
