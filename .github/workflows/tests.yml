@@ -29,8 +29,7 @@ jobs:
       - name: Generate coverage report
         run: |
           pip install pytest pytest-cov coveralls
-          cd tests
-          pytest -s . --cov --cov-report term-missing
+          pytest -s ./tests --cov --cov-report term-missing
 
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
