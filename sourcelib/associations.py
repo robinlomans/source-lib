@@ -1,4 +1,3 @@
-import itertools
 import warnings
 from collections import UserDict
 from pathlib import Path
@@ -68,14 +67,6 @@ class Associations(UserDict):
                     return file_key
             elif file_key in file_association_key:
                 return file_key
-        return None
-
-    @property
-    def associated_files(self):
-        return [
-            tuple(itertools.chain.from_iterable(values.values()))
-            for values in self.values()
-        ]
 
 
 def associate_files(

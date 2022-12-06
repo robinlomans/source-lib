@@ -25,7 +25,7 @@ class File:
         mode: Enum = FileMode.default,
     ):
         self._mode = mode
-        self._path = Path(path)
+        self._path = Path(path).absolute()
         self._original_path = copy(self._path)
         self._extension = self._get_extension(self._path)
 
@@ -55,3 +55,6 @@ class File:
 
     def __str__(self) -> str:
         return f"Mode: {str(self._mode)} | Path:  {str(self._path)}"
+
+    def __repr__(self):
+        return f"File(path={str(self._path)}, mode={str(self._mode)}"

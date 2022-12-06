@@ -32,7 +32,7 @@ def test_stem_file_associater_property():
     associations = associate_files(
         files1=txt_files, files2=md_files, associator=stem_file_associater
     )
-    for item in associations.associated_files:
+    for item in associations:
         assert len(item) == 2
 
 

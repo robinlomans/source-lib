@@ -1,8 +1,8 @@
 from copy import deepcopy
 from enum import Enum
 from pathlib import Path
-from typing import List, Tuple, Union
-
+from typing import List, Mapping, Tuple, Union
+import re
 import yaml
 
 from sourcelib.file import File, FileMode
@@ -22,6 +22,7 @@ def get_files_from_paths(
     paths: List[str],
     filters: List[str],
     excludes: List[str],
+    regex=None,
     **kwargs,
 ):
     files = []
@@ -32,6 +33,9 @@ def get_files_from_paths(
             continue
         if filters and not any((filter in path for filter in filters)):
             continue
+        if regex is not None and not re.search(regex, path):
+            continue
+
         files.append(file_cls(mode=mode, path=path, **kwargs))
     return sorted(files, key=lambda k: k.path)
 
@@ -39,7 +43,7 @@ def get_files_from_paths(
 def get_files_from_path(
     file_cls: type, path: str, mode: Enum = FileMode.default, **kwargs
 ):
-    return get_files_from_paths(file_cls, mode, [path], [], [], **kwargs)
+    return get_files_from_paths(file_cls, mode, [path], [], [], None, **kwargs)
 
 
 def get_files_from_folder(
@@ -48,6 +52,7 @@ def get_files_from_folder(
     mode: Enum = FileMode.default,
     filters: List[str] = (),
     excludes: List[str] = (),
+    regex=None,
     recursive=False,
     **kwargs,
 ):
@@ -59,12 +64,12 @@ def get_files_from_folder(
             folder.rglob("*" + extension) if recursive else folder.glob("*" + extension)
         )
         sources = get_files_from_paths(
-            file_cls, mode, paths, filters, excludes, **kwargs
+            file_cls, mode, paths, filters, excludes, regex, **kwargs
         )
         all_sources.extend(sources)
 
     if len(all_sources) == 0:
-        raise NoSourceFilesInFolderError(file_cls, filters, excludes, folder)
+        raise NoSourceFilesInFolderError(file_cls, filters, excludes, regex, folder)
     return all_sources
 
 
@@ -77,11 +82,12 @@ def get_files_from_yaml(
     mode: Enum = FileMode.default,
     filters=(),
     excludes=(),
+    regex=None,
     **kwargs,
 ):
 
     data = {}
-    if isinstance(yaml_source, dict):
+    if isinstance(yaml_source, Mapping):
         data = deepcopy(yaml_source)
     elif isinstance(yaml_source, (str, Path)):
         with open(yaml_source, encoding="utf-8") as file:
@@ -90,7 +96,7 @@ def get_files_from_yaml(
     paths = []
     if mode.name not in data:
         raise NonExistentModeInYamlSource(
-            f"mode '{mode}' not in data {data.keys()} in: {yaml_source}"
+            f"mode '{mode.name}' not in data {data.keys()} in: {yaml_source}"
         )
 
     file_identifier = file_cls.IDENTIFIER
@@ -99,7 +105,7 @@ def get_files_from_yaml(
             paths.append(item[file_identifier].pop("path"))
             kwargs.update(item[file_identifier])
 
-    return get_files_from_paths(file_cls, mode, paths, filters, excludes, **kwargs)
+    return get_files_from_paths(file_cls, mode, paths, filters, excludes, regex, **kwargs)
 
 
 def copy_from_yml(
