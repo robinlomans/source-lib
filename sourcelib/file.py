@@ -49,8 +49,8 @@ class File:
         return self.EXTENSIONS[path.suffix]
 
     def copy(self, destination_folder: Path) -> None:
-        if self._extension.folder_coupled:
-            copy_source(self._path.with_suffix(""), destination_folder)
+        if self._extension.folder_coupled is not None:
+            copy_source(self._extension.folder_coupled(self._path), destination_folder)
         self._path = copy_source(self._path, destination_folder)
 
     def __str__(self) -> str:

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Callable, List, Optional
 
 
 @dataclass(frozen=True)
 class Extension:
     suffixes: tuple
-    folder_coupled: bool = False
+    folder_coupled: Optional[Callable] = None
 
 
 def create_extensions_mapping(extensions: List[Extension]):

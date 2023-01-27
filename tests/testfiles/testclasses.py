@@ -11,7 +11,7 @@ class DocumentFileMode(Enum):
 
 TEXT_EXTENSION = Extension((".txt",))
 MARKDOWN_EXTENSION = Extension((".md",))
-TEXTPARTS_EXTENSION = Extension((".tpt",), folder_coupled=True)
+TEXTPARTS_EXTENSION = Extension((".tpt",), folder_coupled=lambda path: path.with_suffix(""))
 
 
 DOCUMENT_EXTENSIONS = create_extensions_mapping(
