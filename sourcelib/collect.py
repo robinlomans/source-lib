@@ -6,7 +6,7 @@ import re
 import yaml
 
 from sourcelib.file import File, FileMode
-from sourcelib.associations import Associations 
+from sourcelib.associations import Associations
 
 
 class NoSourceFilesInFolderError(Exception):
@@ -15,6 +15,20 @@ class NoSourceFilesInFolderError(Exception):
 
 class NonExistentModeInYamlSource(Exception):
     ...
+
+
+def _get_data(source, mode):
+    if isinstance(source, Mapping):
+        data = deepcopy(source)
+    if isinstance(source, (str, Path)):
+        with open(source, encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+
+    if mode.name not in data:
+        raise NonExistentModeInYamlSource(
+            f"mode '{mode.name}' not in data {data.keys()} in: {source}"
+        )
+    return data
 
 
 def get_files_from_paths(
@@ -57,7 +71,6 @@ def get_files_from_folder(
     recursive=False,
     **kwargs,
 ):
-
     all_sources = []
     folder = Path(folder)
     for extension in file_cls.EXTENSIONS:
@@ -86,27 +99,18 @@ def get_files_from_yaml(
     regex=None,
     **kwargs,
 ):
-
-    data = {}
-    if isinstance(yaml_source, Mapping):
-        data = deepcopy(yaml_source)
-    elif isinstance(yaml_source, (str, Path)):
-        with open(yaml_source, encoding="utf-8") as file:
-            data = yaml.safe_load(file)
+    data = _get_data(yaml_source, mode)
+    file_identifier = file_cls.IDENTIFIER
 
     paths = []
-    if mode.name not in data:
-        raise NonExistentModeInYamlSource(
-            f"mode '{mode.name}' not in data {data.keys()} in: {yaml_source}"
-        )
-
-    file_identifier = file_cls.IDENTIFIER
     for item in data[mode.name]:
         if file_identifier in item:
             paths.append(item[file_identifier].pop("path"))
             kwargs.update(item[file_identifier])
 
-    return get_files_from_paths(file_cls, mode, paths, filters, excludes, regex, **kwargs)
+    return get_files_from_paths(
+        file_cls, mode, paths, filters, excludes, regex, **kwargs
+    )
 
 
 def get_associations_from_yaml(
@@ -114,26 +118,15 @@ def get_associations_from_yaml(
     file_classes: List[File],
     mode: Enum = FileMode.default,
 ):
-
-    data = {}
-    if isinstance(yaml_source, Mapping):
-        data = deepcopy(yaml_source)
-    elif isinstance(yaml_source, (str, Path)):
-        with open(yaml_source, encoding="utf-8") as file:
-            data = yaml.safe_load(file)
-
-    if mode.name not in data:
-        raise NonExistentModeInYamlSource(
-            f"mode '{mode.name}' not in data {data.keys()} in: {yaml_source}"
-        )
+    data = _get_data(yaml_source, mode)
 
     associations = Associations()
     for file_key, item in enumerate(data[mode.name]):
         file_key = str(file_key)
         associations.add_file_key(file_key=file_key, mode=mode)
         for _, file_data in file_classes.items():
-            file_cls = file_data['class']
-            kwargs = file_data['kwargs'] if 'kwargs' in file_data else {}
+            file_cls = file_data["class"]
+            kwargs = file_data["kwargs"] if "kwargs" in file_data else {}
             file_identifier = file_cls.IDENTIFIER
             if file_identifier in item:
                 path = item[file_identifier].pop("path")
