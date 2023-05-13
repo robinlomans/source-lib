@@ -48,6 +48,9 @@ class Associations(UserDict):
     def add_file_key(self, file_key: str, mode):
         self.setdefault(file_key, AssociatedFiles(file_key, mode))
 
+    def add_file_with_key(self, file_key, file):
+        self[file_key].add_file(file)
+
     def add_file(
         self, file: Path, associater: Callable, exact_match: bool, required: bool
     ):
@@ -76,7 +79,7 @@ def associate_files(
     associator: Callable = stem_file_associater,
     exact_match=False,
 ) -> Associations:
-
+    
     if associations is None:
         associations = Associations()
 

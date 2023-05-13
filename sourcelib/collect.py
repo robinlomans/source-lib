@@ -6,6 +6,7 @@ import re
 import yaml
 
 from sourcelib.file import File, FileMode
+from sourcelib.associations import Associations 
 
 
 class NoSourceFilesInFolderError(Exception):
@@ -106,6 +107,40 @@ def get_files_from_yaml(
             kwargs.update(item[file_identifier])
 
     return get_files_from_paths(file_cls, mode, paths, filters, excludes, regex, **kwargs)
+
+
+def get_associations_from_yaml(
+    yaml_source: Union[str, dict],
+    file_classes: List[File],
+    mode: Enum = FileMode.default,
+):
+
+    data = {}
+    if isinstance(yaml_source, Mapping):
+        data = deepcopy(yaml_source)
+    elif isinstance(yaml_source, (str, Path)):
+        with open(yaml_source, encoding="utf-8") as file:
+            data = yaml.safe_load(file)
+
+    if mode.name not in data:
+        raise NonExistentModeInYamlSource(
+            f"mode '{mode.name}' not in data {data.keys()} in: {yaml_source}"
+        )
+
+    associations = Associations()
+    for file_key, item in enumerate(data[mode.name]):
+        file_key = str(file_key)
+        associations.add_file_key(file_key=file_key, mode=mode)
+        for _, file_data in file_classes.items():
+            file_cls = file_data['class']
+            kwargs = file_data['kwargs'] if 'kwargs' in file_data else {}
+            file_identifier = file_cls.IDENTIFIER
+            if file_identifier in item:
+                path = item[file_identifier].pop("path")
+                kwargs.update(item[file_identifier])
+                file = file_cls(mode=mode, path=path, **kwargs)
+                associations.add_file_with_key(file_key=file_key, file=file)
+    return associations
 
 
 def copy_from_yml(

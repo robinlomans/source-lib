@@ -2,10 +2,14 @@ from pathlib import Path
 
 import yaml
 from pytest import raises
-from sourcelib.collect import (NonExistentModeInYamlSource,
-                               NoSourceFilesInFolderError,
-                               get_files_from_folder, get_files_from_path,
-                               get_files_from_yaml)
+from sourcelib.collect import (
+    NonExistentModeInYamlSource,
+    NoSourceFilesInFolderError,
+    get_files_from_folder,
+    get_files_from_path,
+    get_files_from_yaml,
+    get_associations_from_yaml,
+)
 from sourcelib.file import FileMode
 
 from .testfiles.testclasses import DocumentFile, DocumentFileMode
@@ -88,3 +92,13 @@ def test_collect_from_yaml_source_error_mode():
             file_cls=DocumentFile,
             mode=DocumentFileMode.error,
         )
+
+
+def test_collect_associations_from_yaml_source():
+    yaml_path = Path(__file__).parent / "testfiles" / "data.yml"
+    associations = get_associations_from_yaml(
+        yaml_source=yaml_path, file_classes={"document": {"class": DocumentFile}}
+    )
+    assert len(associations) == 1
+    assert list(associations.keys())[0] == "0"
+    assert isinstance(associations["0"][DocumentFile.IDENTIFIER][0], DocumentFile)
