@@ -1,8 +1,13 @@
 from pathlib import Path
 
 from pytest import raises, warns
-from sourcelib.associations import (AnyOneAssociater, StemSplitterAssociater,
-                                    associate_files, stem_file_associater)
+from sourcelib.associations import associate_files
+from sourcelib.associators import (
+    AnyOneAssociater,
+    StemSplitterAssociater,
+    associate_files,
+    stem_file_associater,
+)
 from sourcelib.collect import get_files_from_folder
 from sourcelib.file import ModeMisMatchError
 
