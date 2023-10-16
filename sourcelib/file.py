@@ -1,9 +1,10 @@
 from copy import copy
 from enum import Enum, auto
+import os
 from pathlib import Path
 
 from sourcelib.copy import copy as copy_source
-from sourcelib.extension import Extension
+from sourcelib.extension import Extension, get_extension_constant_mapping
 
 
 class ModeMisMatchError(Exception):
@@ -15,7 +16,6 @@ class FileMode(Enum):
 
 
 class File:
-
     EXTENSIONS: dict = {}
     IDENTIFIER: str = "file"
 
@@ -58,3 +58,16 @@ class File:
 
     def __repr__(self):
         return f"File(path={str(self._path)}, mode={str(self._mode)}"
+
+
+def generate_default_file_class(file, globs):
+    extension_mapping = get_extension_constant_mapping(globs)
+    return generate_file_class(file, extension_mapping)
+
+def generate_file_class(file, extension_mapping):
+    filename = Path(file).stem
+    return type(
+        filename.capitalize() + File.__name__,
+        (File,),
+        {"EXTENSIONS": extension_mapping, "IDENTIFIER": filename.lower()},
+    )

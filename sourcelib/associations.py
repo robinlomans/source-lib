@@ -6,28 +6,17 @@ from typing import Callable, List, Optional
 from sourcelib.file import File, ModeMisMatchError
 
 
-def stem_file_associater(file: File):
-    return file.path.stem
-
-
-class AnyOneAssociater:
-    def __call__(self, file: File):
-        return self.__class__.__name__
-
-
-class StemSplitterAssociater:
-    def __init__(self, split_symbols: tuple):
-        self._split_symbols = split_symbols
-        super().__init__()
-
-    def __call__(self, file: File):
-        association_name = file.path.stem
-        for split_symbol in self._split_symbols:
-            association_name = association_name.split(split_symbol)[0]
-        return association_name
-
-
 class AssociatedFiles(UserDict):
+    """Represents files associated with a key and mode.
+
+    Args:
+        file_key (str): The key associated with the files.
+        mode (str): The mode of the associated files.
+
+    Examples:
+        >>> associated_files = AssociatedFiles(file_key="key1", mode="mode1")
+        >>> associated_files.add_file(file)
+    """
     def __init__(self, file_key, mode):
         self._file_key = file_key
         self._mode = mode
@@ -40,8 +29,13 @@ class AssociatedFiles(UserDict):
         if type(file) not in self or file not in self[type(file)]:
             self.setdefault(file.IDENTIFIER, []).append(file)
 
-
 class Associations(UserDict):
+    """Represents a collection of associated files.
+
+    Examples:
+        >>> associations = Associations()
+        >>> associations.add_file_key(file_key="key1", mode="mode1")
+    """
     def __init__(self):
         super().__init__({})
 
@@ -51,17 +45,13 @@ class Associations(UserDict):
     def add_file_with_key(self, file_key, file):
         self[file_key].add_file(file)
 
-    def add_file(
-        self, file: Path, associater: Callable, exact_match: bool, required: bool
-    ):
+    def add_file(self, file: Path, associater: Callable, exact_match: bool, required: bool):
         file_key = self._associate(file, associater, exact_match)
         if file_key is None and not required:
             return
         self[file_key].add_file(file)
 
-    def _associate(
-        self, file: Path, associater: Callable, exact_match: bool
-    ) -> Optional[str]:
+    def _associate(self, file: Path, associater: Callable, exact_match: bool) -> Optional[str]:
         file_association_key = associater(file)
 
         for file_key in self:
@@ -72,14 +62,26 @@ class Associations(UserDict):
                 return file_key
         return None
 
-def associate_files(
-    files1: List[File],
-    files2: List[File],
-    associations: Optional[Associations] = None,
-    associator: Callable = stem_file_associater,
-    exact_match=False,
-) -> Associations:
-    
+def associate_files(files1: List[File], files2: List[File], associations: Optional[Associations] = None, 
+                    associator: Callable = stem_file_associater, exact_match=False) -> Associations:
+    """Associates two lists of files based on an associator.
+
+    Args:
+        files1 (List[File]): The first list of files to be associated.
+        files2 (List[File]): The second list of files to be associated.
+        associations (Optional[Associations]): Pre-existing associations. Defaults to None.
+        associator (Callable): The function used to determine associations. Defaults to stem_file_associater.
+        exact_match (bool): Flag to determine if exact matches are required. Defaults to False.
+
+    Returns:
+        Associations: The associations formed from the provided files.
+
+    Examples:
+        >>> files1 = [File("/path/to/image1.jpg"), File("/path/to/image2.jpg")]
+        >>> files2 = [File("/path/to/image1_copy.jpg"), File("/path/to/image3.jpg")]
+        >>> result = associate_files(files1, files2)
+    """
+
     if associations is None:
         associations = Associations()
 
@@ -98,7 +100,6 @@ def associate_files(
     # remove unpaired
     remove_keys = []
     for file_key, files in associations.items():
-        # check if only 1 file type and check if only one item of that file type
         if len(list(files.keys())) <= 1 and len(list(dict(files).values())[0]) <= 1:
             remove_keys.append(file_key)
 
