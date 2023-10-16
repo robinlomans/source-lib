@@ -1,0 +1,30 @@
+name: docs
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - docs/**
+      - sourcelib/version.py
+
+permissions:
+  pages: write
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python Environment
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.10.13'
+            cache: 'pip'
+
+      - name: Install mkdocs-material
+        run: pip install dev-requirements.txt
+
+      - name: Deploy Github Pages
+        run: mike deploy push ...

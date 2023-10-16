@@ -1,0 +1,11 @@
+/* This targets h1, h2, h3, h4, h5, and h6 tags */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--md-primary-fg-color) !important;
+}
+
+/* Adjust the navbar link hover color */
+.md-nav__link:hover, 
+.md-nav__link:focus {
+    color: #a8d5ba !important; /* This is a light vague green. Adjust as needed. */
+}
+
