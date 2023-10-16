@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from sourcelib.file import File, ModeMisMatchError
-
+from sourcelib.associators import stem_file_associater
 
 class AssociatedFiles(UserDict):
     """Represents files associated with a key and mode.
